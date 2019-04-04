@@ -8,9 +8,12 @@ class App extends Component {
     super();
     this.state = {
       friends: [],
-      addFriendName: "",
-      addFriendAge: 0,
-      addFriendEmail: ""
+      friend: {
+        name: "",
+        age: 0,
+        email: "",
+        id: 0
+      }
     };
   }
 
@@ -20,13 +23,24 @@ class App extends Component {
     });
   };
 
-  inputHandler = (event, toChange) => {
-    this.setState({ [toChange]: event.target.value });
+  inputHandler = event => {
+    event.persist();
+    let value = event.target.value;
+    this.setState(prevState => ({
+      friend: { ...prevState.friend, [event.target.name]: value }
+    }));
   };
 
   submitHandler = event => {
     event.preventDefault();
-    console.log("submitted yo!");
+    axios
+      .post("http://localhosst:3333/items", this.state.friend)
+      .then(response => {
+        this.setState(prevState => ({
+          friends: [...prevState.friends, response.data]
+        }));
+      })
+      .catch(err => console.log(err));
   };
   render() {
     return (
@@ -46,24 +60,24 @@ class App extends Component {
           <form onSubmit={this.submitHandler}>
             <input
               type="text"
-              name="addFriendName"
-              value={this.state.addFriendName}
+              name="name"
+              value={this.state.friend.name}
               placeholder="add friend name"
-              onChange={(event) => this.inputHandler(event, 'addFriendName')}
+              onChange={this.inputHandler}
             />
             <input
               type="text"
-              name="addFriendAge"
-              value={this.state.addFriendAge}
+              name="age"
+              value={this.state.friend.age}
               placeholder="add friend age"
-              onChange={(event) => this.inputHandler(event, 'addFriendAge')}
+              onChange={this.inputHandler}
             />
             <input
               type="email"
-              name="addFriendEmail"
-              value={this.state.addFriendEmail}
+              name="email"
+              value={this.state.friend.email}
               placeholder="add friend email"
-              onChange={(event) => this.inputHandler(event, 'addFriendEmail')}
+              onChange={this.inputHandler}
             />
             <button type="submit">Submit</button>
           </form>
